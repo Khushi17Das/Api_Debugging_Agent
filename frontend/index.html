@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Debugging Agent | Evidence-Based AI Assistant with Smart Fallback</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    (function() {
+      const saved = localStorage.getItem("app_theme") || "light";
+      document.documentElement.setAttribute("data-theme", saved);
+    })();
+  </script>
+</head>
+<body>
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <div class="brand-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+          <circle cx="12" cy="12" r="4"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">API Debugging Agent</span>
+        <span class="brand-tag">Evidence-Based • Smart Fallback • Live Testing</span>
+      </div>
+    </div>
+    
+    <nav class="nav-links">
+      <button class="nav-tab active" data-tab="dashboard">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-tab" data-tab="debugger">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        Debug API
+      </button>
+      <button class="nav-tab" data-tab="tester">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Endpoint Tester
+      </button>
+      <button class="nav-tab" data-tab="history">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        History
+      </button>
+    </nav>
+
+    <div class="nav-actions">
+      <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Light / Dark Mode">
+        <span id="themeIcon">🌙</span>
+        <span id="themeLabel">Dark</span>
+      </button>
+      <span class="system-status-badge" id="systemStatusBadge">
+        <span class="status-dot"></span> System Ready
+      </span>
+    </div>
+  </header>
+
+  <!-- Notification Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <main class="main-container">
+
+    <!-- DASHBOARD -->
+    <section id="tab-dashboard" class="tab-pane active">
+      <div class="dashboard-hero">
+        <div class="hero-text">
+          <h1>AI-Powered API Reliability & Debugging Engine</h1>
+          <p>
+            Inspects empirical evidence, separates confirmed facts from assumptions,
+            triggers <strong>Smart Fallback Mode</strong> when information is insufficient,
+            and validates fixes through automated endpoint verification.
+          </p>
+        </div>
+        <div class="hero-actions">
+          <button class="btn btn-primary" onclick="switchTab('debugger')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Debug New API Issue
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Total Sessions</span>
+            <div class="stat-icon icon-blue">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+          </div>
+          <div class="stat-value" id="statTotalSessions">0</div>
+          <div class="stat-footer">Stored in SQLite database</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Successful Fixes</span>
+            <div class="stat-icon icon-green">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+          </div>
+          <div class="stat-value" id="statSuccessfulFixes">0</div>
+          <div class="stat-footer">Verified via endpoint re-test</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Smart Fallback Cases</span>
+            <div class="stat-icon icon-amber">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+          </div>
+          <div class="stat-value" id="statSmartFallback">0</div>
+          <div class="stat-footer">Zero guessing on insufficient evidence</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Verification Rate</span>
+            <div class="stat-icon icon-purple">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            </div>
+          </div>
+          <div class="stat-value" id="statSuccessRate">0%</div>
+          <div class="stat-footer">Empirically confirmed resolutions</div>
+        </div>
+      </div>
+
+      <!-- Quick Presets Carousel / Cards -->
+      <div class="section-card mt-6">
+        <div class="card-header">
+          <div>
+            <h3>One-Click Realistic Scenarios</h3>
+            <p class="subtitle">Experience how the agent diagnoses concrete issues vs enforces Smart Fallback Mode.</p>
+          </div>
+        </div>
+        <div class="presets-grid">
+          <div class="preset-card fallback-highlight" onclick="loadPreset('fallback_500')">
+            <div class="preset-badge badge-warning">Smart Fallback Mode</div>
+            <h4>500 Internal Server Error (No Logs)</h4>
+            <p>User only reports HTTP 500 without logs or code. The agent refuses to guess causes and asks for evidence.</p>
+            <span class="preset-cta">Load Scenario &rarr;</span>
+          </div>
+
+          <div class="preset-card" onclick="loadPreset('pydantic_422')">
+            <div class="preset-badge badge-success">Diagnosed</div>
+            <h4>422 Unprocessable Entity</h4>
+            <p>Invalid email format rejected by schema validation. Agent identifies field and synthesizes compliant payload.</p>
+            <span class="preset-cta">Load Scenario &rarr;</span>
+          </div>
+
+          <div class="preset-card" onclick="loadPreset('db_operational')">
+            <div class="preset-badge badge-success">Diagnosed</div>
+            <h4>500 SQLAlchemy OperationalError</h4>
+            <p>Log contains connection failure. Agent cites log evidence and recommends pool & connection string fixes.</p>
+            <span class="preset-cta">Load Scenario &rarr;</span>
+          </div>
+
+          <div class="preset-card" onclick="loadPreset('auth_401')">
+            <div class="preset-badge badge-success">Diagnosed</div>
+            <h4>401 Missing Bearer Token</h4>
+            <p>Request denied on protected resource. Agent generates authorization header snippet.</p>
+            <span class="preset-cta">Load Scenario &rarr;</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Debugging Activity -->
+      <div class="section-card mt-6">
+        <div class="card-header">
+          <h3>Recent Debugging Sessions</h3>
+          <button class="btn btn-secondary btn-sm" onclick="switchTab('history')">View Full History</button>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Mode</th>
+                <th>Method & Endpoint</th>
+                <th>Status</th>
+                <th>Confidence</th>
+                <th>Summary</th>
+                <th>Resolved</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="dashboardRecentTable">
+              <tr>
+                <td colspan="8" class="text-center text-muted py-4">No recent sessions found. Try debugging an API!</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: DEBUG API (FORM & ANALYSIS) -->
+    <section id="tab-debugger" class="tab-pane">
+      <div class="debugger-layout">
+        
+        <!-- Left Column: Input Form -->
+        <div class="input-panel">
+          <div class="panel-header">
+            <div>
+              <h2>API Evidence Intake</h2>
+              <p class="subtitle">Provide whatever details you have. All fields are optional.</p>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="clearDebugForm()">Clear Form</button>
+          </div>
+
+          <!-- Quick Fill Preset Selector -->
+          <div class="preset-selector-bar">
+            <span class="label-text">Quick Presets:</span>
+            <button class="btn-pill" onclick="loadPreset('fallback_500')">500 No Logs (Fallback)</button>
+            <button class="btn-pill" onclick="loadPreset('pydantic_422')">422 Invalid Email</button>
+            <button class="btn-pill" onclick="loadPreset('db_operational')">500 DB Error</button>
+            <button class="btn-pill" onclick="loadPreset('auth_401')">401 Auth Token</button>
+            <button class="btn-pill" onclick="loadPreset('route_404')">404 Route</button>
+            <button class="btn-pill" onclick="loadPreset('live_divide')">Live DivByZero</button>
+          </div>
+
+          <form id="debugForm" onsubmit="handleAnalyzeSubmit(event)">
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label for="endpoint">Endpoint / Route URL</label>
+                <input type="text" id="endpoint" placeholder="e.g. /api/users or http://127.0.0.1:8000/api/users" autocomplete="off">
+              </div>
+              <div class="form-group flex-1">
+                <label for="method">HTTP Method</label>
+                <select id="method">
+                  <option value="GET">GET</option>
+                  <option value="POST" selected>POST</option>
+                  <option value="PUT">PUT</option>
+                  <option value="PATCH">PATCH</option>
+                  <option value="DELETE">DELETE</option>
+                </select>
+              </div>
+              <div class="form-group flex-1">
+                <label for="statusCode">HTTP Status</label>
+                <input type="number" id="statusCode" placeholder="e.g. 500, 422" min="100" max="599">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="errorMessage">Error Message / Client Exception</label>
+              <input type="text" id="errorMessage" placeholder="e.g. 422 Unprocessable Entity or sqlalchemy.exc.OperationalError" autocomplete="off">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="requestBody">Request Body / Payload (JSON/Text)</label>
+                <textarea id="requestBody" rows="4" placeholder='{"email": "invalid-address", "name": "Alex"}'></textarea>
+              </div>
+              <div class="form-group flex-1">
+                <label for="responseBody">Response Body Returned</label>
+                <textarea id="responseBody" rows="4" placeholder='{"detail": [{"loc": ["body", "email"], "msg": "value is not a valid email"}]}'></textarea>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="logs">Server Logs / Terminal Traceback</label>
+              <textarea id="logs" rows="5" class="font-code" placeholder="Paste server logs or Python traceback here..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="backendCode">Relevant Backend Code Snippet</label>
+              <textarea id="backendCode" rows="5" class="font-code" placeholder="@app.post('/api/users')&#10;def create_user(user: UserModel):&#10;    ..."></textarea>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" id="btnAnalyze" class="btn btn-primary btn-lg">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+                Inspect Evidence & Diagnose
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Right Column: Analysis Output -->
+        <div class="output-panel" id="analysisOutputPanel">
+          <div class="empty-state" id="analysisEmptyState">
+            <div class="empty-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </div>
+            <h3>Awaiting Evidence Report</h3>
+            <p>Fill out the form on the left or select a quick preset scenario to analyze an API issue.</p>
+          </div>
+
+          <div class="loading-state hidden" id="analysisLoadingState">
+            <div class="spinner"></div>
+            <h3>Inspecting Evidence...</h3>
+            <p>Evaluating sufficiency, confirming facts, and synthesizing diagnostic report.</p>
+          </div>
+
+          <!-- Analysis Results Display -->
+          <div class="result-content hidden" id="analysisResultContent">
+            
+            <!-- Result Header Banner -->
+            <div class="result-banner" id="resultBanner">
+              <div class="banner-main">
+                <span class="badge" id="badgeMode">DIAGNOSED</span>
+                <span class="badge" id="badgeSafeFix">SAFE TO SUGGEST</span>
+                <h3 id="resultTitle">Root Cause Diagnosed</h3>
+              </div>
+              <div class="banner-meta">
+                <div class="meta-item">
+                  <span class="meta-label">Confidence:</span>
+                  <span class="confidence-tag" id="confidenceTag">HIGH</span>
+                </div>
+                <div class="meta-item" id="sessionIdMeta">
+                  <span class="meta-label">Session:</span>
+                  <span id="sessionNumber">#1</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Error Summary Card -->
+            <div class="result-card">
+              <h4 class="card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                Error Summary
+              </h4>
+              <p id="errorSummaryText" class="result-summary-text"></p>
+            </div>
+
+            <!-- SMART FALLBACK VIEW (Only shown when mode == smart_fallback) -->
+            <div id="smartFallbackSection" class="hidden">
+              <div class="fallback-callout">
+                <div class="callout-icon">⚠️</div>
+                <div class="callout-body">
+                  <strong>Smart Fallback Active: Insufficient Evidence</strong>
+                  <p>The system refuses to invent assumptions without empirical evidence. Below are confirmed facts vs possible causes and the minimum missing information required.</p>
+                </div>
+              </div>
+
+              <!-- Facts vs Assumptions -->
+              <div class="dual-columns mt-4">
+                <div class="column-card confirmed-card">
+                  <h4>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    Confirmed Facts (Direct Evidence)
+                  </h4>
+                  <ul id="confirmedFactsList" class="evidence-list"></ul>
+                </div>
+                <div class="column-card assumptions-card">
+                  <h4>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    Assumptions (Not Verified)
+                  </h4>
+                  <ul id="assumptionsList" class="evidence-list"></ul>
+                </div>
+              </div>
+
+              <!-- Likely vs Possible Causes -->
+              <div class="dual-columns mt-4">
+                <div class="column-card">
+                  <h4>Likely Causes (Strong Pattern)</h4>
+                  <ul id="likelyCausesList" class="bullet-list"></ul>
+                </div>
+                <div class="column-card">
+                  <h4>Possible Causes (Alternatives)</h4>
+                  <ul id="possibleCausesList" class="bullet-list"></ul>
+                </div>
+              </div>
+
+              <!-- Missing Info & Safe Next Steps -->
+              <div class="result-card mt-4">
+                <h4 class="card-title">Minimum Information Needed to Confirm</h4>
+                <ul id="missingInfoList" class="bullet-list"></ul>
+              </div>
+
+              <div class="result-card mt-4">
+                <h4 class="card-title">Safe Diagnostic Next Steps</h4>
+                <ul id="safeNextStepsList" class="bullet-list-check"></ul>
+              </div>
+            </div>
+
+            <!-- DIAGNOSED VIEW (Only shown when mode == diagnosis) -->
+            <div id="diagnosedSection" class="hidden">
+              
+              <!-- Root Cause & Evidence -->
+              <div class="result-card">
+                <h4 class="card-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="12 8 8 12 12 16 16 12 12 8"/></svg>
+                  Identified Root Cause
+                </h4>
+                <p id="rootCauseText" class="highlight-text"></p>
+                
+                <h5 class="sub-heading mt-4">Supporting Evidence:</h5>
+                <ul id="evidenceList" class="evidence-checklist"></ul>
+              </div>
+
+              <!-- Recommended Fix -->
+              <div class="result-card mt-4">
+                <h4 class="card-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  Recommended Fix
+                </h4>
+                <p id="recommendedFixText"></p>
+              </div>
+
+              <!-- Code Comparison (Before vs After) -->
+              <div class="result-card mt-4" id="codeDiffContainer">
+                <div class="code-diff-header">
+                  <h4>Code Comparison</h4>
+                  <button class="btn btn-sm btn-outline" onclick="copyFixedCode()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    Copy Fixed Snippet
+                  </button>
+                </div>
+                
+                <div class="diff-grid">
+                  <div class="diff-block">
+                    <span class="diff-label label-before">Before (Faulty)</span>
+                    <pre><code id="codeBeforeBlock" class="font-code"></code></pre>
+                  </div>
+                  <div class="diff-block">
+                    <span class="diff-label label-after">After (Corrected)</span>
+                    <pre><code id="codeAfterBlock" class="font-code"></code></pre>
+                  </div>
+                </div>
+
+                <div class="notes-box mt-3" id="additionalNotesBox">
+                  <strong>Implementation Notes:</strong>
+                  <span id="additionalNotesText"></span>
+                </div>
+              </div>
+
+              <!-- Actions & Test Trigger -->
+              <div class="action-footer mt-4">
+                <button class="btn btn-primary" onclick="transferToTester()">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                  Test Endpoint Now
+                </button>
+                <button class="btn btn-secondary" onclick="triggerFixVerification()">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  Run Fix Verification
+                </button>
+              </div>
+            </div>
+
+            <!-- Fix Verification Result Box (Dynamic) -->
+            <div id="verificationResultCard" class="result-card verification-card hidden mt-4">
+              <div class="verification-header">
+                <h4>Fix Verification Outcome</h4>
+                <span class="badge" id="verificationBadge">VERIFIED</span>
+              </div>
+              <div class="verification-body">
+                <div class="before-after-pill">
+                  <span class="badge-status-before" id="verifyBeforeStatus">Before: 500</span>
+                  <span class="arrow">&rarr;</span>
+                  <span class="badge-status-after" id="verifyAfterStatus">After: 200 OK</span>
+                </div>
+                <p id="verificationResultMsg" class="verification-msg"></p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: ENDPOINT TESTER & VERIFICATION -->
+    <section id="tab-tester" class="tab-pane">
+      <div class="section-card">
+        <div class="card-header">
+          <div>
+            <h2>Guarded Endpoint Tester & Fix Verifier</h2>
+            <p class="subtitle">Directly execute HTTP requests to verify API behavior with SSRF safety constraints.</p>
+          </div>
+        </div>
+
+        <form id="testerForm" onsubmit="handleTestExecution(event)">
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="testMethod">HTTP Method</label>
+              <select id="testMethod">
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="PATCH">PATCH</option>
+                <option value="DELETE">DELETE</option>
+              </select>
+            </div>
+            <div class="form-group flex-3">
+              <label for="testUrl">Target URL (must start with http:// or https://)</label>
+              <input type="text" id="testUrl" placeholder="http://127.0.0.1:8000/api/sample/users" required>
+            </div>
+            <div class="form-group flex-1">
+              <label for="testExpectedStatus">Expected Status</label>
+              <input type="number" id="testExpectedStatus" placeholder="e.g. 200, 201" min="100" max="599">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="testHeaders">Request Headers (JSON format)</label>
+              <textarea id="testHeaders" rows="3" class="font-code" placeholder='{"Content-Type": "application/json"}'></textarea>
+            </div>
+            <div class="form-group flex-1">
+              <label for="testBody">Request Body (JSON / text)</label>
+              <textarea id="testBody" rows="3" class="font-code" placeholder='{"email": "jane@example.com", "name": "Jane"}'></textarea>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="btnRunTest" class="btn btn-primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Execute Endpoint Test
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="loadSampleTestTarget()">
+              Load Built-in Playground Target
+            </button>
+          </div>
+        </form>
+
+        <!-- Live Execution Output Box -->
+        <div id="testOutputContainer" class="mt-6 hidden">
+          <div class="test-result-header">
+            <div>
+              <h3>Test Execution Results</h3>
+              <span id="testSummaryPill" class="badge">PASS</span>
+            </div>
+            <div class="test-timing">
+              Response Time: <strong id="testResponseTime">0 ms</strong>
+            </div>
+          </div>
+
+          <div class="test-metrics-row mt-3">
+            <div class="metric-chip">
+              <span>Status Code:</span>
+              <strong id="testStatusCode">200</strong>
+            </div>
+            <div class="metric-chip">
+              <span>Method:</span>
+              <strong id="testResultMethod">GET</strong>
+            </div>
+            <div class="metric-chip flex-2">
+              <span>Target:</span>
+              <span id="testResultEndpoint" class="font-code"></span>
+            </div>
+          </div>
+
+          <div class="form-group mt-4">
+            <label>Response Body:</label>
+            <pre class="code-box"><code id="testResponseBody" class="font-code"></code></pre>
+          </div>
+
+          <div class="form-group mt-3">
+            <label>Response Headers:</label>
+            <pre class="code-box"><code id="testResponseHeaders" class="font-code"></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: HISTORY -->
+    <section id="tab-history" class="tab-pane">
+      <div class="section-card">
+        <div class="card-header">
+          <div>
+            <h2>Debugging Session History</h2>
+            <p class="subtitle">Complete log of all past diagnostic runs, fallback cases, and verifications stored in SQLite.</p>
+          </div>
+          <div class="history-controls">
+            <div class="search-box">
+              <input type="text" id="historySearchInput" placeholder="Search endpoint or error..." oninput="handleHistorySearch()">
+            </div>
+            <div class="filter-buttons">
+              <button class="btn-pill active" onclick="filterHistory('all')">All</button>
+              <button class="btn-pill" onclick="filterHistory('diagnosis')">Diagnosed</button>
+              <button class="btn-pill" onclick="filterHistory('smart_fallback')">Smart Fallback</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive mt-4">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Created</th>
+                <th>Mode</th>
+                <th>Endpoint</th>
+                <th>Status</th>
+                <th>Confidence</th>
+                <th>Error Summary</th>
+                <th>Resolved</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <tr>
+                <td colspan="9" class="text-center text-muted py-6">Loading history...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Session Details Modal -->
+  <div id="sessionModal" class="modal-overlay hidden" onclick="closeSessionModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="modalSessionTitle">Debugging Session Details</h3>
+        <button class="modal-close" onclick="closeSessionModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modalSessionBody">
+        <!-- Injected via JavaScript -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeSessionModal()">Close</button>
+        <button class="btn btn-primary" id="modalLoadBtn">Load into Debugger</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <p>API Debugging Agent &bull; Engineered with FastAPI, Pydantic, SQLite & OpenAI &bull; Built for High-Integrity Diagnostic Reliability</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
